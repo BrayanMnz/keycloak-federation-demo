@@ -13,6 +13,7 @@ services:
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
     volumes:
       - ./fake-entra/corp-realm.json:/opt/keycloak/data/import/corp-realm.json:ro
+      - ./fake-entra/themes/corp-directory:/opt/keycloak/themes/corp-directory:ro
     ports:
       - "18081:8080"
 

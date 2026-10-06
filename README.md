@@ -14,8 +14,8 @@ docker compose up -d --build   # first build ~2-3 min (Maven + Vaadin bundle); K
 docker compose down       # wipes everything; next `up` starts clean
 ```
 
-The fake Entra login page uses Keycloak's unstyled `base` theme (`loginTheme` in
-`fake-entra/corp-realm.json`), so it's easy to tell apart from our Keycloak's pages.
+The fake Entra login page uses a small custom theme (`fake-entra/themes/corp-directory`:
+the unstyled `base` templates + one CSS file), so it's easy to tell apart from our Keycloak's pages.
 
 Always reset **both** Keycloaks together (`down` / `up`). Recreating only `fake-entra` gives
 its users new IDs, and our Keycloak then shows *"account already exists"* (link-account
