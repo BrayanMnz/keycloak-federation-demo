@@ -1,0 +1,44 @@
+# Federated identity demo
+#   fake-entra  -> plays the role of Entra ID (corporate IdP, owns users + groups)
+#   keycloak    -> the app's Keycloak (broker). Has NO pre-created users.
+#   app         -> backoffice app (Quarkus + Vaadin, Java 25) that logs in through keycloak
+services:
+  fake-entra:
+    image: quay.io/keycloak/keycloak:26.4
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: http://localhost:18081
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    volumes:
+      - ./fake-entra/corp-realm.json:/opt/keycloak/data/import/corp-realm.json:ro
+    ports:
+      - "18081:8080"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: http://localhost:18080
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    volumes:
+      - ./keycloak/acme-realm.json:/opt/keycloak/data/import/acme-realm.json:ro
+    ports:
+      - "18080:8080"
+    depends_on:
+      - fake-entra
+
+  app:
+    build: ./app
+    environment:
+      KC_URL: http://keycloak:8080/realms/acme
+      CLIENT_ID: backoffice-demo
+      CLIENT_SECRET: backoffice-demo-secret
+      IDP_HINT: entra
+    ports:
+      - "13000:8080"
+    depends_on:
+      - keycloak

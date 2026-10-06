@@ -1,0 +1,101 @@
+{
+  "realm": "acme",
+  "displayName": "ACME Backoffice",
+  "enabled": true,
+  "sslRequired": "none",
+  "eventsEnabled": true,
+  "adminEventsEnabled": true,
+  "roles": {
+    "realm": [
+      { "name": "operador", "description": "Can view/operate backoffice cases" },
+      { "name": "supervisor", "description": "Can approve/reject" }
+    ]
+  },
+  "groups": [
+    { "name": "backoffice-operador", "realmRoles": ["operador"] },
+    { "name": "backoffice-supervisor", "realmRoles": ["operador", "supervisor"] }
+  ],
+  "users": [],
+  "clients": [
+    {
+      "clientId": "backoffice-demo",
+      "name": "Backoffice demo app",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "backoffice-demo-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:13000/callback"],
+      "attributes": { "post.logout.redirect.uris": "http://localhost:13000/*" },
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "config": {
+            "claim.name": "groups",
+            "full.path": "false",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "identityProviders": [
+    {
+      "alias": "entra",
+      "displayName": "Corporate login (Entra ID)",
+      "providerId": "oidc",
+      "enabled": true,
+      "trustEmail": true,
+      "storeToken": false,
+      "firstBrokerLoginFlowAlias": "first broker login",
+      "config": {
+        "syncMode": "FORCE",
+        "clientId": "keycloak-broker",
+        "clientSecret": "broker-secret",
+        "clientAuthMethod": "client_secret_post",
+        "authorizationUrl": "http://localhost:18081/realms/corp/protocol/openid-connect/auth",
+        "tokenUrl": "http://fake-entra:8080/realms/corp/protocol/openid-connect/token",
+        "userInfoUrl": "http://fake-entra:8080/realms/corp/protocol/openid-connect/userinfo",
+        "jwksUrl": "http://fake-entra:8080/realms/corp/protocol/openid-connect/certs",
+        "logoutUrl": "http://localhost:18081/realms/corp/protocol/openid-connect/logout",
+        "issuer": "http://localhost:18081/realms/corp",
+        "validateSignature": "true",
+        "useJwksUrl": "true",
+        "defaultScope": "openid profile email",
+        "pkceEnabled": "true",
+        "pkceMethod": "S256",
+        "backchannelSupported": "false",
+        "sendIdTokenOnLogout": "true"
+      }
+    }
+  ],
+  "identityProviderMappers": [
+    {
+      "name": "Entra Operadores -> backoffice-operador",
+      "identityProviderAlias": "entra",
+      "identityProviderMapper": "oidc-advanced-group-idp-mapper",
+      "config": {
+        "syncMode": "FORCE",
+        "claims": "[{\"key\":\"groups\",\"value\":\"ACME-Backoffice-Operadores\"}]",
+        "are.claim.values.regex": "false",
+        "group": "/backoffice-operador"
+      }
+    },
+    {
+      "name": "Entra Supervisores -> backoffice-supervisor",
+      "identityProviderAlias": "entra",
+      "identityProviderMapper": "oidc-advanced-group-idp-mapper",
+      "config": {
+        "syncMode": "FORCE",
+        "claims": "[{\"key\":\"groups\",\"value\":\"ACME-Backoffice-Supervisores\"}]",
+        "are.claim.values.regex": "false",
+        "group": "/backoffice-supervisor"
+      }
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "realm": "corp",
+  "displayName": "Fake Entra ID (corporate directory)",
+  "enabled": true,
+  "sslRequired": "none",
+  "groups": [
+    { "name": "ACME-Backoffice-Operadores" },
+    { "name": "ACME-Backoffice-Supervisores" },
+    { "name": "Marketing" }
+  ],
+  "users": [
+    {
+      "username": "ana",
+      "email": "ana@corp.example",
+      "emailVerified": true,
+      "firstName": "Ana",
+      "lastName": "Operadora",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "ana", "temporary": false }],
+      "groups": ["/ACME-Backoffice-Operadores"]
+    },
+    {
+      "username": "carlos",
+      "email": "carlos@corp.example",
+      "emailVerified": true,
+      "firstName": "Carlos",
+      "lastName": "Supervisor",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "carlos", "temporary": false }],
+      "groups": ["/ACME-Backoffice-Operadores", "/ACME-Backoffice-Supervisores"]
+    },
+    {
+      "username": "maria",
+      "email": "maria@corp.example",
+      "emailVerified": true,
+      "firstName": "Maria",
+      "lastName": "Marketing",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "maria", "temporary": false }],
+      "groups": ["/Marketing"]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "keycloak-broker",
+      "name": "ACME Keycloak (broker)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "broker-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:18080/realms/acme/broker/entra/endpoint*"],
+      "attributes": { "post.logout.redirect.uris": "http://localhost:18080/*" },
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "config": {
+            "claim.name": "groups",
+            "full.path": "false",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ]
+}
