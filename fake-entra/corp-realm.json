@@ -1,6 +1,7 @@
 {
   "realm": "corp",
   "displayName": "Fake Entra ID (corporate directory)",
+  "loginTheme": "base",
   "enabled": true,
   "sslRequired": "none",
   "groups": [
